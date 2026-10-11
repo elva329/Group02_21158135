@@ -146,4 +146,7 @@ python -m unittest discover -s tests -q
 The local app can use the included model by setting `BANKING77_MODEL_ID` to
 its local directory as shown above. A hosted deployment that loads the model
 from Hugging Face instead needs `BANKING77_MODEL_ID` set to the public Hugging
-Face model repository ID in the deployment's environment/secrets.
+Face model repository ID in the deployment's environment/secrets. For
+Streamlit Community Cloud, choose Python 3.12 in Advanced settings. The app
+requirements prefer CPU-only PyTorch wheels to avoid installing unnecessary
+GPU libraries on the hosted CPU runtime.

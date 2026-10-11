@@ -78,7 +78,9 @@ comparison.
 3. Push the app source and `requirements.txt` to GitHub. Do not commit
    `.streamlit/secrets.toml`, model weights, or credentials.
 4. In Streamlit Community Cloud, create an app from that GitHub repository and
-   choose `app.py` as the main file.
+   choose `app.py` as the main file. Under **Advanced settings**, select
+   Python 3.12. The requirements file uses CPU-only PyTorch wheels for this
+   hosted CPU deployment.
 5. In the app's **Advanced settings → Secrets**, set the root-level value
    below, replacing it with your public Hugging Face model repository ID:
 
