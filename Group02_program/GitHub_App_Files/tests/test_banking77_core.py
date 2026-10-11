@@ -1,6 +1,16 @@
+import sys
 import unittest
+from pathlib import Path
 
-from banking77_core import normalize_classifier_output, rank_neighbor_intents
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from banking77_core import (
+    DEFAULT_MODEL_DIR,
+    make_reference_examples,
+    normalize_classifier_output,
+    rank_neighbor_intents,
+    resolve_default_model_dir,
+)
 
 
 class ClassifierOutputTests(unittest.TestCase):
@@ -44,6 +54,17 @@ class RetrievalRankingTests(unittest.TestCase):
     def test_unknown_intent_id_is_rejected(self) -> None:
         with self.assertRaises(ValueError):
             rank_neighbor_intents([(2, 0.5)], ["card_arrival"])
+
+
+class ModelResolutionTests(unittest.TestCase):
+    def test_default_model_dir_resolves_valid_path(self) -> None:
+        resolved = resolve_default_model_dir()
+        self.assertIsInstance(resolved, Path)
+        self.assertTrue(resolved.is_dir(), f"Resolved path does not exist: {resolved}")
+
+    def test_reference_examples_validation(self) -> None:
+        with self.assertRaises(ValueError):
+            make_reference_examples([], examples_per_intent=0)
 
 
 if __name__ == "__main__":

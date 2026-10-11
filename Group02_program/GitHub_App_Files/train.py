@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 from typing import Any
 
@@ -106,6 +107,8 @@ def main() -> None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     trainer.save_model(str(args.output_dir))
     tokenizer.save_pretrained(args.output_dir)
+    with (args.output_dir / "label_names.json").open("w", encoding="utf-8") as file:
+        json.dump(class_names, file, ensure_ascii=False, indent=2)
     print(f"Saved fine-tuned model to {args.output_dir}")
     print(f"Validation metrics: {validation_metrics}")
 

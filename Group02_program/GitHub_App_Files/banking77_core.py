@@ -10,25 +10,88 @@ from typing import Any, Sequence
 DATASET_ID = "PolyAI/banking77"
 EMBEDDING_MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
 MAX_LENGTH = 128
-DEFAULT_MODEL_DIR = (
-    Path(__file__).resolve().parent / "Fine-tuned_Model_files" / "banking77-distilbert"
-)
+
+
+def resolve_default_model_dir() -> Path:
+    """Find the default fine-tuned model directory across common project layouts."""
+    candidates = [
+        Path(__file__).resolve().parent / "Fine-tuned_Model_files" / "banking77-distilbert",
+        Path(__file__).resolve().parents[2] / "Group02_Dataset_files" / "Fine-tuned_Model_files" / "banking77-distilbert",
+        Path(__file__).resolve().parents[1] / "Python_notebooks" / "Fine-tuned_Model_files" / "banking77-distilbert",
+        Path.cwd() / "Group02_Dataset_files" / "Fine-tuned_Model_files" / "banking77-distilbert",
+        Path.cwd() / "Fine-tuned_Model_files" / "banking77-distilbert",
+    ]
+    for candidate in candidates:
+        if (candidate / "config.json").is_file() or (candidate / "model.safetensors").is_file():
+            return candidate
+    return candidates[0]
+
+
+DEFAULT_MODEL_DIR = resolve_default_model_dir()
 REFERENCE_EXAMPLES_PER_INTENT = 25
 
 
+def _load_local_banking77() -> tuple[Any, list[str]] | None:
+    """Attempt to load BANKING77 dataset from local CSV files in the workspace."""
+    try:
+        import pandas as pd
+        from datasets import ClassLabel, Dataset, DatasetDict, Features, Value
+
+        candidates = [
+            Path(__file__).resolve().parents[2] / "Group02_Dataset_files",
+            Path(__file__).resolve().parents[1] / "Dataset_files",
+            Path.cwd() / "Group02_Dataset_files",
+            Path.cwd() / "Dataset_files",
+        ]
+        data_dir = next(
+            (c for c in candidates if (c / "train.csv").is_file() and (c / "test.csv").is_file()),
+            None,
+        )
+        if data_dir is None:
+            return None
+
+        train_df = pd.read_csv(data_dir / "train.csv")
+        if (data_dir / "validation.csv").is_file():
+            val_df = pd.read_csv(data_dir / "validation.csv")
+            full_train_df = pd.concat([train_df, val_df], ignore_index=True)
+        else:
+            full_train_df = train_df
+        test_df = pd.read_csv(data_dir / "test.csv")
+
+        intent_map = dict(zip(full_train_df["label"], full_train_df["intent"]))
+        class_names = [intent_map[i] for i in range(len(intent_map))]
+        features = Features({"text": Value("string"), "label": ClassLabel(names=class_names)})
+
+        dataset = DatasetDict({
+            "train": Dataset.from_pandas(full_train_df[["text", "label"]], features=features),
+            "test": Dataset.from_pandas(test_df[["text", "label"]], features=features),
+        })
+        return dataset, class_names
+    except Exception:
+        return None
+
+
 def load_banking77() -> tuple[Any, list[str]]:
-    """Load the official Hugging Face dataset and its intent names."""
+    """Load the official Hugging Face dataset and its intent names with local CSV fallback."""
     from datasets import ClassLabel, DatasetDict, load_dataset
 
-    loaded_dataset = load_dataset(DATASET_ID, trust_remote_code=True)
-    if not isinstance(loaded_dataset, DatasetDict):
-        raise TypeError(f"{DATASET_ID} did not load as a map-style DatasetDict")
-    dataset = loaded_dataset
-    label_feature = dataset["train"].features["label"]
-    if not isinstance(label_feature, ClassLabel):
-        raise TypeError("BANKING77's label feature is not a ClassLabel")
-    class_names = list(label_feature.names)
-    return dataset, class_names
+    try:
+        loaded_dataset = load_dataset(DATASET_ID, trust_remote_code=True)
+        if isinstance(loaded_dataset, DatasetDict):
+            label_feature = loaded_dataset["train"].features.get("label")
+            if isinstance(label_feature, ClassLabel):
+                class_names = list(label_feature.names)
+                return loaded_dataset, class_names
+    except Exception:
+        local_result = _load_local_banking77()
+        if local_result is not None:
+            return local_result
+        raise
+
+    local_result = _load_local_banking77()
+    if local_result is not None:
+        return local_result
+    raise TypeError(f"{DATASET_ID} did not load as a map-style DatasetDict")
 
 
 def make_reference_examples(
@@ -164,6 +227,13 @@ class HuggingFaceEmbeddingRetriever:
         self.tokenizer = AutoTokenizer.from_pretrained(model_id)
         self.encoder = AutoModel.from_pretrained(model_id).to(self.device)
         self.encoder.eval()
+        from transformers import pipeline
+
+        self.feature_extraction_pipeline = pipeline(
+            "feature-extraction",
+            model=self.encoder,
+            tokenizer=self.tokenizer,
+        )
         self.reference_labels = torch.tensor(reference_labels, dtype=torch.long)
         self.reference_vectors = self._encode(reference_texts)
 
