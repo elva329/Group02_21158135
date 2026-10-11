@@ -18,7 +18,7 @@ evaluation scripts, and Colab-ready notebooks.
 
 ## Requirements
 
-- Python 3.10 or newer.
+- Python 3.11 or newer.
 - Internet access the first time you run the app, train, or evaluate: Hugging
   Face downloads the BANKING77 dataset and the pretrained embedding model.
 - A GPU is optional. Training is faster with one; inference also supports CPU.
@@ -146,7 +146,6 @@ python -m unittest discover -s tests -q
 The local app can use the included model by setting `BANKING77_MODEL_ID` to
 its local directory as shown above. A hosted deployment that loads the model
 from Hugging Face instead needs `BANKING77_MODEL_ID` set to the public Hugging
-Face model repository ID in the deployment's environment/secrets. For
-Streamlit Community Cloud, choose Python 3.12 in Advanced settings. The app
-requirements prefer CPU-only PyTorch wheels to avoid installing unnecessary
-GPU libraries on the hosted CPU runtime.
+Face model repository ID in the deployment's environment/secrets. The app
+requirements support the Python 3.14 runtime currently used by Streamlit
+Community Cloud and prefer CPU-only PyTorch wheels for its hosted CPU runtime.
