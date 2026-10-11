@@ -80,7 +80,9 @@ comparison.
 4. In Streamlit Community Cloud, create an app from that GitHub repository and
    choose `app.py` as the main file. The requirements file supports the Python
    3.14 runtime used by Community Cloud and uses CPU-only PyTorch wheels for
-   this hosted CPU deployment.
+   this hosted CPU deployment. Its CPU wheel page is a find-links source, not
+   an additional package index, so it will not interfere with resolving other
+   dependencies.
 5. In the app's **Advanced settings → Secrets**, set the root-level value
    below, replacing it with your public Hugging Face model repository ID:
 

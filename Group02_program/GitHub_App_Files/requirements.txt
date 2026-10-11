@@ -1,4 +1,4 @@
---extra-index-url https://download.pytorch.org/whl/cpu
+--find-links https://download.pytorch.org/whl/cpu/torch/
 
 accelerate>=1.1,<2
 datasets==2.21.0

@@ -149,3 +149,5 @@ from Hugging Face instead needs `BANKING77_MODEL_ID` set to the public Hugging
 Face model repository ID in the deployment's environment/secrets. The app
 requirements support the Python 3.14 runtime currently used by Streamlit
 Community Cloud and prefer CPU-only PyTorch wheels for its hosted CPU runtime.
+The PyTorch wheel page is configured as a find-links source, not an extra
+package index, so it does not interfere with resolving other dependencies.
