@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.py[cod]
+.streamlit/secrets.toml
+models/
+*.safetensors
+Fine-tuned_Model_files/**/model.safetensors
+results/*.csv
+results/*.xlsx
+.DS_Store
+*.ipynb_checkpoints/
