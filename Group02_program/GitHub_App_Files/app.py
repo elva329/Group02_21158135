@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
 from typing import Any
 
 import streamlit as st
@@ -14,11 +13,12 @@ from banking77_core import (
     HuggingFaceIntentClassifier,
     load_banking77,
     make_reference_examples,
+    model_weights_exist,
 )
 
 HUB_MODEL_ID = os.environ.get("BANKING77_MODEL_ID", "").strip()
 MODEL_REF = HUB_MODEL_ID or str(DEFAULT_MODEL_DIR)
-LOCAL_MODEL_CONFIGURED = bool(HUB_MODEL_ID) or Path(MODEL_REF).is_dir()
+LOCAL_MODEL_CONFIGURED = bool(HUB_MODEL_ID) or model_weights_exist(DEFAULT_MODEL_DIR)
 
 
 @st.cache_resource(show_spinner="Loading the fine-tuned intent model...")
@@ -62,8 +62,10 @@ def main() -> None:
 
     if not LOCAL_MODEL_CONFIGURED:
         st.info(
-            "The fine-tuned classifier is not available yet. Run `python train.py` "
-            "to create it. You can still try the pretrained retrieval baseline."
+            "The fine-tuned classifier is not available. Set `BANKING77_MODEL_ID` "
+            "to a Hugging Face model repository containing the fine-tuned model, "
+            "or run `python train.py` to create it locally. You can still try the "
+            "pretrained retrieval baseline."
         )
         pipeline_options = ["Pretrained retrieval"]
     else:

@@ -12,6 +12,22 @@ EMBEDDING_MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
 MAX_LENGTH = 128
 
 
+def model_weights_exist(model_dir: str | Path) -> bool:
+    """Return whether a Hugging Face model directory contains weight files."""
+    model_path = Path(model_dir)
+    weight_files = (
+        "model.safetensors",
+        "pytorch_model.bin",
+        "model.safetensors.index.json",
+        "pytorch_model.bin.index.json",
+    )
+    return (
+        any((model_path / filename).is_file() for filename in weight_files)
+        or any(model_path.glob("model-*.safetensors"))
+        or any(model_path.glob("pytorch_model-*.bin"))
+    )
+
+
 def resolve_default_model_dir() -> Path:
     """Find the default fine-tuned model directory across common project layouts."""
     candidates = [
@@ -22,7 +38,7 @@ def resolve_default_model_dir() -> Path:
         Path.cwd() / "Fine-tuned_Model_files" / "banking77-distilbert",
     ]
     for candidate in candidates:
-        if (candidate / "config.json").is_file() or (candidate / "model.safetensors").is_file():
+        if model_weights_exist(candidate):
             return candidate
     return candidates[0]
 

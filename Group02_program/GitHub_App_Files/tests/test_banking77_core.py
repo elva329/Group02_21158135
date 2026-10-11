@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -7,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from banking77_core import (
     DEFAULT_MODEL_DIR,
     make_reference_examples,
+    model_weights_exist,
     normalize_classifier_output,
     rank_neighbor_intents,
     resolve_default_model_dir,
@@ -65,6 +67,18 @@ class ModelResolutionTests(unittest.TestCase):
     def test_reference_examples_validation(self) -> None:
         with self.assertRaises(ValueError):
             make_reference_examples([], examples_per_intent=0)
+
+    def test_config_without_weights_is_not_a_model_checkpoint(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            model_dir = Path(temp_dir)
+            (model_dir / "config.json").touch()
+            self.assertFalse(model_weights_exist(model_dir))
+
+    def test_model_weights_are_detected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            model_dir = Path(temp_dir)
+            (model_dir / "model.safetensors").touch()
+            self.assertTrue(model_weights_exist(model_dir))
 
 
 if __name__ == "__main__":
