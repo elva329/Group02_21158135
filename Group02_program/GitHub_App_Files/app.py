@@ -224,10 +224,6 @@ def main() -> None:
         index=0 if LOCAL_MODEL_CONFIGURED else 1,
     )
     mode_explanations = {
-        "Classify my message": (
-            "Fine-tuned classifier: DistilBERT predicts one of BANKING77's 77 "
-            "intent categories."
-        ),
         "Find similar examples": (
             "Pretrained retrieval: finds the closest BANKING77 examples and "
             "uses their intent."
@@ -237,11 +233,12 @@ def main() -> None:
             "fine-tuned classifier predicts its intent."
         ),
     }
-    st.caption(mode_explanations[selected_mode])
+    if selected_mode in mode_explanations:
+        st.caption(mode_explanations[selected_mode])
     render_query_interface(selected_mode)
 
     st.markdown(
-        "<div style='text-align: center; color: #666666; font-size: 1rem; "
+        "<div style='text-align: center; color: #666666; font-size: 0.75rem; "
         "margin-top: 4rem;'>© 2026 Group02 | DistilBERT classifies BANKING77 "
         "intents, all-MiniLM-L6-v2 retrieves similar examples, and Whisper Tiny "
         "transcribes spoken enquiries to support online-banking query routing."
