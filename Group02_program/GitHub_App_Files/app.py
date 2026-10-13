@@ -70,10 +70,6 @@ def render_query_interface(selected_mode: str) -> None:
     voice_mode = selected_mode == "Speak my message"
 
     if voice_mode:
-        st.write(
-            "Record your English enquiry. Whisper Tiny will transcribe it, then "
-            "the fine-tuned classifier will predict its intent."
-        )
         st.caption(
             "Tip: Click Record, speak your enquiry, click Stop, then click "
             "Classify message."
@@ -161,7 +157,21 @@ def main() -> None:
         .block-container {
             max-width: 1120px;
             padding-top: 4rem;
-            padding-bottom: 2.5rem;
+            padding-bottom: 5rem;
+        }
+        .app-footer {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 999;
+            padding: 0.65rem 1rem;
+            border-top: 1px solid #DDDDDD;
+            background-color: rgba(245, 245, 245, 0.97);
+            color: #666666;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            text-align: center;
         }
         h1 {
             color: var(--hsbc-ink);
@@ -229,8 +239,8 @@ def main() -> None:
             "uses their intent."
         ),
         "Speak my message": (
-            "Voice-to-text: Whisper Tiny transcribes your recording, then the "
-            "fine-tuned classifier predicts its intent."
+            "Whisper Tiny transcribes your recording; the fine-tuned classifier "
+            "predicts its intent."
         ),
     }
     if selected_mode in mode_explanations:
@@ -238,8 +248,7 @@ def main() -> None:
     render_query_interface(selected_mode)
 
     st.markdown(
-        "<div style='text-align: center; color: #666666; font-size: 0.75rem; "
-        "margin-top: 4rem;'>© 2026 Group02 | DistilBERT classifies BANKING77 "
+        "<div class='app-footer'>© 2026 Group02 | DistilBERT classifies BANKING77 "
         "intents, all-MiniLM-L6-v2 retrieves similar examples, and Whisper Tiny "
         "transcribes spoken enquiries to support online-banking query routing."
         "</div>",
