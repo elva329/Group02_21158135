@@ -80,34 +80,46 @@ def main() -> None:
             "or run `python train.py` to create it locally. You can still try the "
             "pretrained retrieval baseline."
         )
-        pipeline_options = ["Pretrained retrieval"]
-    else:
-        pipeline_options = [
+
+    selected_mode = st.radio(
+        "Prediction mode",
+        [
             "Fine-tuned classifier",
             "Pretrained retrieval",
-            "Compare both",
-        ]
+            "Advanced Feature: voice-to-text",
+        ],
+        index=0 if LOCAL_MODEL_CONFIGURED else 1,
+    )
+    voice_mode = selected_mode == "Advanced Feature: voice-to-text"
 
-    selected_pipeline = st.selectbox("Prediction pipeline", pipeline_options)
-    with st.expander("Advanced feature: voice-to-text"):
+    if voice_mode:
         st.write(
-            "Record your enquiry to transcribe it into English before intent "
-            "classification. You can also type a message below."
+            "Record your English enquiry. Whisper Tiny will transcribe it, then "
+            "the fine-tuned classifier will predict its intent."
         )
         recorded_audio = st.audio_input(
             "Record a banking enquiry",
             sample_rate=16000,
         )
-
-    query = st.text_area(
-        "Customer message",
-        placeholder="For example: I don't recognize a card payment on my account.",
-        max_chars=2000,
-    )
+    else:
+        query = st.text_area(
+            "Customer message",
+            placeholder="For example: I don't recognize a card payment on my account.",
+            max_chars=2000,
+        )
     if not st.button("Classify message", type="primary"):
         return
-    message = query.strip()
-    if recorded_audio is not None:
+    if selected_mode != "Pretrained retrieval" and not LOCAL_MODEL_CONFIGURED:
+        st.error(
+            "This mode requires the fine-tuned classifier. Configure "
+            "`BANKING77_MODEL_ID` or run `python train.py` first."
+        )
+        return
+
+    if voice_mode:
+        if recorded_audio is None:
+            st.warning("Record an enquiry before classifying.")
+            return
         try:
             audio, sample_rate = sf.read(
                 BytesIO(recorded_audio.getvalue()),
@@ -128,35 +140,20 @@ def main() -> None:
             st.warning("No speech was transcribed. Please try recording again.")
             return
         st.text_area("Speech-to-text transcript", value=message, disabled=True)
+    else:
+        message = query.strip()
+        if not message:
+            st.warning("Enter a customer message before classifying.")
+            return
 
-    if not message:
-        st.warning("Enter a customer message or record an enquiry before classifying.")
-        return
-
-    if selected_pipeline == "Fine-tuned classifier":
+    if selected_mode in ("Fine-tuned classifier", "Advanced Feature: voice-to-text"):
         classifier = get_classifier(MODEL_REF)
         predictions = classifier.predict_many([message], top_k=3)[0]
         display_predictions(predictions, "Model probability")
-    elif selected_pipeline == "Pretrained retrieval":
+    else:
         retriever, _ = get_retriever()
         predictions = retriever.predict_many([message], top_k=3)[0]
         display_predictions(predictions, "Mean neighbor cosine similarity")
-    else:
-        classifier = get_classifier(MODEL_REF)
-        retriever, _ = get_retriever()
-        left, right = st.columns(2)
-        with left:
-            st.markdown("#### Fine-tuned classifier")
-            display_predictions(
-                classifier.predict_many([message], top_k=3)[0],
-                "Model probability",
-            )
-        with right:
-            st.markdown("#### Pretrained retrieval")
-            display_predictions(
-                retriever.predict_many([message], top_k=3)[0],
-                "Mean neighbor cosine similarity",
-            )
 
 
 if __name__ == "__main__":

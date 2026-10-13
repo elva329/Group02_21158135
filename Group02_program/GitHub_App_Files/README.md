@@ -63,13 +63,12 @@ python evaluate.py --max-test-samples 100
 streamlit run app.py
 ```
 
-Before training, the app offers the pretrained retrieval baseline. After
-training, it also offers the fine-tuned classifier and a side-by-side
-comparison. To use the advanced voice-to-text input, expand **Advanced
-feature: voice-to-text**, record an English enquiry, and select **Classify
-message**. The app transcribes the recording with Whisper Tiny and sends the
-transcript to the selected intent pipeline. Typed input remains available as a
-fallback; audio file uploads are not supported.
+Choose one of the three prediction modes: **Fine-tuned classifier**,
+**Pretrained retrieval**, or **Advanced Feature: voice-to-text**. The voice
+mode records an English enquiry, transcribes it with Whisper Tiny, and sends
+the transcript to the fine-tuned classifier. The other two modes accept typed
+messages. Audio file uploads are not supported. The fine-tuned classifier
+requires a local trained model or a configured `BANKING77_MODEL_ID`.
 
 ## Deploy to Streamlit Community Cloud
 
