@@ -1,7 +1,8 @@
-# BANKING77 Intent Routing
+# HSBC Banking Query Intent Router
 
-This project compares two Hugging Face-based approaches for routing English
-online-banking queries to one of BANKING77's 77 intent categories:
+This prototype is presented for HSBC Online Banking Customer Support and
+compares two Hugging Face-based approaches for routing English online-banking
+queries to one of BANKING77's 77 intent categories:
 
 1. A DistilBERT text classifier fine-tuned on BANKING77.
 2. A pretrained sentence-embedding retriever that assigns the intent of the
@@ -10,6 +11,10 @@ online-banking queries to one of BANKING77's 77 intent categories:
 
 Sentiment is intentionally not treated as a project label: BANKING77 has intent
 labels, not verified sentiment annotations.
+
+The interface uses an HSBC-inspired red, charcoal, and white palette. The
+classifier is trained on public BANKING77 benchmark data, not HSBC customer
+support records, so validate it on HSBC-specific data before any production use.
 
 ## Setup
 

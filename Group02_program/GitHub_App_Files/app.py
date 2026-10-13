@@ -66,11 +66,93 @@ def display_predictions(
 
 
 def main() -> None:
-    st.set_page_config(page_title="Banking Query Intent Router", page_icon="🏦")
-    st.title("Banking Query Intent Router")
+    st.set_page_config(
+        page_title="HSBC Banking Query Intent Router",
+        page_icon="🏦",
+        layout="wide",
+    )
+    st.markdown(
+        """
+        <style>
+        :root {
+            --hsbc-red: #DB0011;
+            --hsbc-red-dark: #B0000E;
+            --hsbc-ink: #1B1B1B;
+            --hsbc-canvas: #F5F5F5;
+        }
+        [data-testid="stAppViewContainer"] {
+            background-color: var(--hsbc-canvas);
+        }
+        [data-testid="stHeader"] {
+            background-color: rgba(255, 255, 255, 0.92);
+        }
+        .block-container {
+            max-width: 1120px;
+            padding-top: 2rem;
+            padding-bottom: 2.5rem;
+        }
+        h1 {
+            color: var(--hsbc-ink);
+            font-weight: 700;
+        }
+        .hsbc-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .hsbc-brand-name {
+            color: var(--hsbc-red);
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+        }
+        .hsbc-brand-divider {
+            width: 2px;
+            height: 1.4rem;
+            background-color: var(--hsbc-red);
+        }
+        .hsbc-brand-section {
+            color: #555555;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+        }
+        input[type="radio"] {
+            accent-color: var(--hsbc-red);
+        }
+        div.stButton > button[kind="primary"] {
+            background-color: var(--hsbc-red);
+            border-color: var(--hsbc-red);
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+        div.stButton > button[kind="primary"]:hover {
+            background-color: var(--hsbc-red-dark);
+            border-color: var(--hsbc-red-dark);
+            color: #FFFFFF;
+        }
+        div[data-testid="stTextArea"] textarea:focus {
+            border-color: var(--hsbc-red);
+            box-shadow: 0 0 0 1px var(--hsbc-red);
+        }
+        </style>
+        <div class="hsbc-brand">
+            <span class="hsbc-brand-name">HSBC</span>
+            <span class="hsbc-brand-divider"></span>
+            <span class="hsbc-brand-section">ONLINE BANKING SUPPORT</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.title("HSBC Banking Query Intent Router")
     st.write(
-        "Classify an English online-banking support message into one of BANKING77's "
-        "77 service intents."
+        "Prototype for HSBC Online Banking Customer Support. Classify an English "
+        "enquiry into one of BANKING77's 77 service intents."
+    )
+    st.caption(
+        "The intent model uses public BANKING77 benchmark data, not HSBC customer "
+        "support records."
     )
 
     if not LOCAL_MODEL_CONFIGURED:
