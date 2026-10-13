@@ -15,6 +15,14 @@ labels, not verified sentiment annotations.
 The interface uses an HSBC-inspired red, charcoal, and white palette. The
 classifier is trained on public BANKING77 benchmark data, not HSBC customer
 support records, so validate it on HSBC-specific data before any production use.
+This is an independent student prototype and is not affiliated with or endorsed
+by HSBC.
+
+The HSBC logo asset is the
+[2018 HSBC logo](https://commons.wikimedia.org/wiki/File:HSBC_logo_(2018).svg),
+attributed on Wikimedia Commons to HSBC. It is included to identify the
+project's intended business context; the HSBC name, logo, and related
+trademarks remain the property of HSBC.
 
 ## Setup
 

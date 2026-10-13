@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from io import BytesIO
+from pathlib import Path
 from typing import Any
 
 import soundfile as sf
@@ -95,28 +96,12 @@ def main() -> None:
             color: var(--hsbc-ink);
             font-weight: 700;
         }
-        .hsbc-brand {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            margin-bottom: 1rem;
-        }
-        .hsbc-brand-name {
-            color: var(--hsbc-red);
-            font-size: 0.95rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-        }
-        .hsbc-brand-divider {
-            width: 2px;
-            height: 1.4rem;
-            background-color: var(--hsbc-red);
-        }
         .hsbc-brand-section {
             color: #555555;
             font-size: 0.78rem;
             font-weight: 600;
             letter-spacing: 0.12em;
+            margin-bottom: 0.25rem;
         }
         input[type="radio"] {
             accent-color: var(--hsbc-red);
@@ -137,15 +122,21 @@ def main() -> None:
             box-shadow: 0 0 0 1px var(--hsbc-red);
         }
         </style>
-        <div class="hsbc-brand">
-            <span class="hsbc-brand-name">HSBC</span>
-            <span class="hsbc-brand-divider"></span>
-            <span class="hsbc-brand-section">ONLINE BANKING SUPPORT</span>
-        </div>
         """,
         unsafe_allow_html=True,
     )
-    st.title("HSBC Banking Query Intent Router")
+    logo_column, title_column = st.columns([1, 4])
+    with logo_column:
+        st.image(
+            str(Path(__file__).resolve().parent / "assets" / "hsbc-logo-2018.svg"),
+            width=180,
+        )
+    with title_column:
+        st.markdown(
+            '<div class="hsbc-brand-section">ONLINE BANKING SUPPORT</div>',
+            unsafe_allow_html=True,
+        )
+        st.title("HSBC Banking Query Intent Router")
     st.write(
         "Prototype for HSBC Online Banking Customer Support. Classify an English "
         "enquiry into one of BANKING77's 77 service intents."
@@ -154,6 +145,7 @@ def main() -> None:
         "The intent model uses public BANKING77 benchmark data, not HSBC customer "
         "support records."
     )
+    st.caption("Independent student prototype; not affiliated with or endorsed by HSBC.")
 
     if not LOCAL_MODEL_CONFIGURED:
         st.info(
