@@ -65,7 +65,11 @@ streamlit run app.py
 
 Before training, the app offers the pretrained retrieval baseline. After
 training, it also offers the fine-tuned classifier and a side-by-side
-comparison.
+comparison. To use the advanced voice-to-text input, expand **Advanced
+feature: voice-to-text**, record an English enquiry, and select **Classify
+message**. The app transcribes the recording with Whisper Tiny and sends the
+transcript to the selected intent pipeline. Typed input remains available as a
+fallback; audio file uploads are not supported.
 
 ## Deploy to Streamlit Community Cloud
 

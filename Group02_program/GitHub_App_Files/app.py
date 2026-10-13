@@ -3,9 +3,13 @@
 from __future__ import annotations
 
 import os
+from io import BytesIO
 from typing import Any
 
+import soundfile as sf
 import streamlit as st
+import torch
+from transformers import pipeline
 
 from banking77_core import (
     DEFAULT_MODEL_DIR,
@@ -32,6 +36,15 @@ def get_retriever() -> tuple[HuggingFaceEmbeddingRetriever, list[str]]:
     texts, labels = make_reference_examples(dataset["train"])
     retriever = HuggingFaceEmbeddingRetriever(texts, labels, class_names)
     return retriever, class_names
+
+
+@st.cache_resource(show_spinner="Loading the speech-to-text model...")
+def get_transcriber() -> Any:
+    return pipeline(
+        "automatic-speech-recognition",
+        model="openai/whisper-tiny",
+        device=0 if torch.cuda.is_available() else -1,
+    )
 
 
 def display_predictions(
@@ -76,6 +89,16 @@ def main() -> None:
         ]
 
     selected_pipeline = st.selectbox("Prediction pipeline", pipeline_options)
+    with st.expander("Advanced feature: voice-to-text"):
+        st.write(
+            "Record your enquiry to transcribe it into English before intent "
+            "classification. You can also type a message below."
+        )
+        recorded_audio = st.audio_input(
+            "Record a banking enquiry",
+            sample_rate=16000,
+        )
+
     query = st.text_area(
         "Customer message",
         placeholder="For example: I don't recognize a card payment on my account.",
@@ -83,17 +106,40 @@ def main() -> None:
     )
     if not st.button("Classify message", type="primary"):
         return
-    if not query.strip():
-        st.warning("Enter a customer message before classifying.")
+    message = query.strip()
+    if recorded_audio is not None:
+        try:
+            audio, sample_rate = sf.read(
+                BytesIO(recorded_audio.getvalue()),
+                dtype="float32",
+            )
+        except (OSError, RuntimeError, ValueError) as exc:
+            st.error(f"Could not read the recorded audio: {exc}")
+            return
+        if audio.ndim > 1:
+            audio = audio.mean(axis=1)
+        with st.spinner("Transcribing your recording..."):
+            result = get_transcriber()(
+                {"array": audio, "sampling_rate": sample_rate},
+                generate_kwargs={"language": "english", "task": "transcribe"},
+            )
+        message = str(result["text"]).strip()
+        if not message:
+            st.warning("No speech was transcribed. Please try recording again.")
+            return
+        st.text_area("Speech-to-text transcript", value=message, disabled=True)
+
+    if not message:
+        st.warning("Enter a customer message or record an enquiry before classifying.")
         return
 
     if selected_pipeline == "Fine-tuned classifier":
         classifier = get_classifier(MODEL_REF)
-        predictions = classifier.predict_many([query], top_k=3)[0]
+        predictions = classifier.predict_many([message], top_k=3)[0]
         display_predictions(predictions, "Model probability")
     elif selected_pipeline == "Pretrained retrieval":
         retriever, _ = get_retriever()
-        predictions = retriever.predict_many([query], top_k=3)[0]
+        predictions = retriever.predict_many([message], top_k=3)[0]
         display_predictions(predictions, "Mean neighbor cosine similarity")
     else:
         classifier = get_classifier(MODEL_REF)
@@ -101,11 +147,14 @@ def main() -> None:
         left, right = st.columns(2)
         with left:
             st.markdown("#### Fine-tuned classifier")
-            display_predictions(classifier.predict_many([query], top_k=3)[0], "Model probability")
+            display_predictions(
+                classifier.predict_many([message], top_k=3)[0],
+                "Model probability",
+            )
         with right:
             st.markdown("#### Pretrained retrieval")
             display_predictions(
-                retriever.predict_many([query], top_k=3)[0],
+                retriever.predict_many([message], top_k=3)[0],
                 "Mean neighbor cosine similarity",
             )
 
