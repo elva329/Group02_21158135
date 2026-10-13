@@ -204,11 +204,6 @@ def main() -> None:
             str(Path(__file__).resolve().parent / "assets" / "hsbc-logo-2018.svg"),
             width=180,
         )
-    with title_column:
-        st.markdown(
-            '<div class="hsbc-brand-section">ONLINE BANKING SUPPORT</div>',
-            unsafe_allow_html=True,
-        )
     st.title("HSBC Banking Query Intent Router")
 
     if not LOCAL_MODEL_CONFIGURED:
@@ -229,10 +224,6 @@ def main() -> None:
         index=0 if LOCAL_MODEL_CONFIGURED else 1,
     )
     mode_explanations = {
-        "Classify my message": (
-            "Fine-tuned classifier: DistilBERT predicts one of BANKING77's 77 "
-            "intent categories."
-        ),
         "Find similar examples": (
             "Pretrained retrieval: finds the closest BANKING77 examples and "
             "uses their intent."
@@ -246,8 +237,8 @@ def main() -> None:
     render_query_interface(selected_mode)
 
     st.markdown(
-        "<div style='text-align: center; color: #666666; font-size: 0.75rem; "
-        "margin-top: 2rem;'>© 2026 Group02 | DistilBERT classifies BANKING77 "
+        "<div style='text-align: center; color: #666666; font-size: 1rem; "
+        "margin-top: 4rem;'>© 2026 Group02 | DistilBERT classifies BANKING77 "
         "intents, all-MiniLM-L6-v2 retrieves similar examples, and Whisper Tiny "
         "transcribes spoken enquiries to support online-banking query routing."
         "</div>",
