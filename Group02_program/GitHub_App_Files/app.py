@@ -158,15 +158,30 @@ def main() -> None:
         )
 
     selected_mode = st.radio(
-        "Prediction mode",
+        "How would you like to submit your query?",
         [
-            "Fine-tuned classifier",
-            "Pretrained retrieval",
-            "Advanced Feature: voice-to-text",
+            "Classify my message",
+            "Find similar examples",
+            "Speak my message",
         ],
         index=0 if LOCAL_MODEL_CONFIGURED else 1,
     )
-    voice_mode = selected_mode == "Advanced Feature: voice-to-text"
+    mode_explanations = {
+        "Classify my message": (
+            "Fine-tuned classifier: DistilBERT predicts one of BANKING77's 77 "
+            "intent categories."
+        ),
+        "Find similar examples": (
+            "Pretrained retrieval: finds the closest BANKING77 examples and "
+            "uses their intent."
+        ),
+        "Speak my message": (
+            "Voice-to-text: Whisper Tiny transcribes your recording, then the "
+            "fine-tuned classifier predicts its intent."
+        ),
+    }
+    st.caption(mode_explanations[selected_mode])
+    voice_mode = selected_mode == "Speak my message"
 
     if voice_mode:
         st.write(
@@ -189,7 +204,7 @@ def main() -> None:
         )
     if not st.button("Classify message", type="primary"):
         return
-    if selected_mode != "Pretrained retrieval" and not LOCAL_MODEL_CONFIGURED:
+    if selected_mode != "Find similar examples" and not LOCAL_MODEL_CONFIGURED:
         st.error(
             "This mode requires the fine-tuned classifier. Configure "
             "`BANKING77_MODEL_ID` or run `python train.py` first."
@@ -226,7 +241,7 @@ def main() -> None:
             st.warning("Enter a customer message before classifying.")
             return
 
-    if selected_mode in ("Fine-tuned classifier", "Advanced Feature: voice-to-text"):
+    if selected_mode in ("Classify my message", "Speak my message"):
         classifier = get_classifier(MODEL_REF)
         predictions = classifier.predict_many([message], top_k=3)[0]
         display_predictions(predictions, "Model probability")

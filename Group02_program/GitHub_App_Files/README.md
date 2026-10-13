@@ -76,13 +76,19 @@ python evaluate.py --max-test-samples 100
 streamlit run app.py
 ```
 
-Choose one of the three prediction modes: **Fine-tuned classifier**,
-**Pretrained retrieval**, or **Advanced Feature: voice-to-text**. The voice
-mode records an English enquiry, transcribes it with Whisper Tiny, and sends
-the transcript to the fine-tuned classifier. Click **Record**, speak, click
-**Stop**, then click **Classify message**. The other two modes accept typed
-messages. Audio file uploads are not supported. The fine-tuned classifier
-requires a local trained model or a configured `BANKING77_MODEL_ID`.
+Choose how to submit the query:
+
+- **Classify my message** — the fine-tuned DistilBERT classifier predicts one
+  of BANKING77's 77 intent categories.
+- **Find similar examples** — pretrained retrieval finds the closest BANKING77
+  examples and uses their intent.
+- **Speak my message** — Whisper Tiny transcribes the recording, then the
+  fine-tuned classifier predicts its intent.
+
+For voice input, click **Record**, speak, click **Stop**, then click
+**Classify message**. The first two modes accept typed messages. Audio file
+uploads are not supported. The fine-tuned classifier requires a local trained
+model or a configured `BANKING77_MODEL_ID`.
 
 ## Deploy to Streamlit Community Cloud
 
