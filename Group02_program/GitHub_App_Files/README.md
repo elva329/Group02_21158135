@@ -86,7 +86,7 @@ Choose how to submit the query:
   fine-tuned classifier predicts its intent.
 
 For voice input, click **Record**, speak, click **Stop**, then click
-**Classify message**. The first two modes accept typed messages. Audio file
+**Find intent**. The first two modes accept typed messages. Audio file
 uploads are not supported. The fine-tuned classifier requires a local trained
 model or a configured `BANKING77_MODEL_ID`.
 

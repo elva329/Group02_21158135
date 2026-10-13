@@ -72,7 +72,7 @@ def render_query_interface(selected_mode: str) -> None:
     if voice_mode:
         st.caption(
             "Tip: Click Record, speak your enquiry, click Stop, then click "
-            "Classify message."
+            "Find intent."
         )
         recorded_audio = st.audio_input(
             "Record a banking enquiry",
@@ -84,7 +84,7 @@ def render_query_interface(selected_mode: str) -> None:
             placeholder="For example: I don't recognize a card payment on my account.",
             max_chars=2000,
         )
-    if not st.button("Classify message", type="primary"):
+    if not st.button("Find intent", type="primary"):
         return
     if selected_mode != "Find similar examples" and not LOCAL_MODEL_CONFIGURED:
         st.error(
