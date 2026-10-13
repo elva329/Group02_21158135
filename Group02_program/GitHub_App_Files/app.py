@@ -245,16 +245,13 @@ def main() -> None:
     st.caption(mode_explanations[selected_mode])
     render_query_interface(selected_mode)
 
-    st.divider()
-    st.subheader("About this prototype")
-    st.caption(
-        "Purpose: demonstrate how English online-banking enquiries can be "
-        "routed to one of BANKING77's 77 service intents."
-    )
-    st.caption(
-        "The intent models use public BANKING77 benchmark data, not HSBC "
-        "customer support records. This independent student prototype is not "
-        "affiliated with or endorsed by HSBC."
+    st.markdown(
+        "<div style='text-align: center; color: #666666; font-size: 0.75rem; "
+        "margin-top: 2rem;'>© 2026 Group02 | DistilBERT classifies BANKING77 "
+        "intents, all-MiniLM-L6-v2 retrieves similar examples, and Whisper Tiny "
+        "transcribes spoken enquiries to support online-banking query routing."
+        "</div>",
+        unsafe_allow_html=True,
     )
 
 
