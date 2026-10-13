@@ -234,8 +234,12 @@ def main() -> None:
         index=0 if LOCAL_MODEL_CONFIGURED else 1,
     )
     mode_explanations = {
+        "Classify my message": (
+            "A DistilBERT model fine-tuned on BANKING77 predicts the intent "
+            "of your message."
+        ),
         "Find similar examples": (
-            "Pretrained retrieval: finds the closest BANKING77 examples and "
+            "The all-MiniLM-L6-v2 model finds similar BANKING77 examples and "
             "uses their intent."
         ),
         "Speak my message": (
@@ -243,8 +247,8 @@ def main() -> None:
             "predicts its intent."
         ),
     }
-    if selected_mode in mode_explanations:
-        st.caption(mode_explanations[selected_mode])
+    with st.expander("How this method works"):
+        st.write(mode_explanations[selected_mode])
     render_query_interface(selected_mode)
 
     st.markdown(
