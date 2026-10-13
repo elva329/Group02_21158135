@@ -89,12 +89,14 @@ def main() -> None:
         }
         .block-container {
             max-width: 1120px;
-            padding-top: 2rem;
+            padding-top: 4rem;
             padding-bottom: 2.5rem;
         }
         h1 {
             color: var(--hsbc-ink);
             font-weight: 700;
+            font-size: 2rem;
+            line-height: 1.2;
         }
         .hsbc-brand-section {
             color: #555555;
