@@ -66,7 +66,8 @@ streamlit run app.py
 Choose one of the three prediction modes: **Fine-tuned classifier**,
 **Pretrained retrieval**, or **Advanced Feature: voice-to-text**. The voice
 mode records an English enquiry, transcribes it with Whisper Tiny, and sends
-the transcript to the fine-tuned classifier. The other two modes accept typed
+the transcript to the fine-tuned classifier. Click **Record**, speak, click
+**Stop**, then click **Classify message**. The other two modes accept typed
 messages. Audio file uploads are not supported. The fine-tuned classifier
 requires a local trained model or a configured `BANKING77_MODEL_ID`.
 

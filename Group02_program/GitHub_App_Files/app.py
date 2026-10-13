@@ -97,6 +97,10 @@ def main() -> None:
             "Record your English enquiry. Whisper Tiny will transcribe it, then "
             "the fine-tuned classifier will predict its intent."
         )
+        st.caption(
+            "Tip: Click Record, speak your enquiry, click Stop, then click "
+            "Classify message."
+        )
         recorded_audio = st.audio_input(
             "Record a banking enquiry",
             sample_rate=16000,
