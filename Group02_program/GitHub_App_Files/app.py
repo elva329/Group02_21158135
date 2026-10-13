@@ -233,22 +233,6 @@ def main() -> None:
         ],
         index=0 if LOCAL_MODEL_CONFIGURED else 1,
     )
-    mode_explanations = {
-        "Classify my message": (
-            "A DistilBERT model fine-tuned on BANKING77 predicts the intent "
-            "of your message."
-        ),
-        "Find similar examples": (
-            "The all-MiniLM-L6-v2 model finds similar BANKING77 examples and "
-            "uses their intent."
-        ),
-        "Speak my message": (
-            "Whisper Tiny transcribes your recording; the fine-tuned classifier "
-            "predicts its intent."
-        ),
-    }
-    with st.expander("How this method works"):
-        st.write(mode_explanations[selected_mode])
     render_query_interface(selected_mode)
 
     st.markdown(
