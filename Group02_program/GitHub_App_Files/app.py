@@ -66,9 +66,80 @@ def display_predictions(
             )
 
 
+def render_query_interface(selected_mode: str) -> None:
+    voice_mode = selected_mode == "Speak my message"
+
+    if voice_mode:
+        st.write(
+            "Record your English enquiry. Whisper Tiny will transcribe it, then "
+            "the fine-tuned classifier will predict its intent."
+        )
+        st.caption(
+            "Tip: Click Record, speak your enquiry, click Stop, then click "
+            "Classify message."
+        )
+        recorded_audio = st.audio_input(
+            "Record a banking enquiry",
+            sample_rate=16000,
+        )
+    else:
+        query = st.text_area(
+            "Customer message",
+            placeholder="For example: I don't recognize a card payment on my account.",
+            max_chars=2000,
+        )
+    if not st.button("Classify message", type="primary"):
+        return
+    if selected_mode != "Find similar examples" and not LOCAL_MODEL_CONFIGURED:
+        st.error(
+            "This mode requires the fine-tuned classifier. Configure "
+            "`BANKING77_MODEL_ID` or run `python train.py` first."
+        )
+        return
+
+    if voice_mode:
+        if recorded_audio is None:
+            st.warning("Record an enquiry before classifying.")
+            return
+        try:
+            audio, sample_rate = sf.read(
+                BytesIO(recorded_audio.getvalue()),
+                dtype="float32",
+            )
+        except (OSError, RuntimeError, ValueError) as exc:
+            st.error(f"Could not read the recorded audio: {exc}")
+            return
+        if audio.ndim > 1:
+            audio = audio.mean(axis=1)
+        with st.spinner("Transcribing your recording..."):
+            result = get_transcriber()(
+                {"array": audio, "sampling_rate": sample_rate},
+                generate_kwargs={"language": "english", "task": "transcribe"},
+            )
+        message = str(result["text"]).strip()
+        if not message:
+            st.warning("No speech was transcribed. Please try recording again.")
+            return
+        st.text_area("Speech-to-text transcript", value=message, disabled=True)
+    else:
+        message = query.strip()
+        if not message:
+            st.warning("Enter a customer message before classifying.")
+            return
+
+    if selected_mode in ("Classify my message", "Speak my message"):
+        classifier = get_classifier(MODEL_REF)
+        predictions = classifier.predict_many([message], top_k=3)[0]
+        display_predictions(predictions, "Model probability")
+    else:
+        retriever, _ = get_retriever()
+        predictions = retriever.predict_many([message], top_k=3)[0]
+        display_predictions(predictions, "Mean neighbor cosine similarity")
+
+
 def main() -> None:
     st.set_page_config(
-        page_title="HSBC Banking Query Intent Router",
+        page_title="Banking Query Intent Router",
         page_icon="🏦",
         layout="wide",
     )
@@ -138,16 +209,7 @@ def main() -> None:
             '<div class="hsbc-brand-section">ONLINE BANKING SUPPORT</div>',
             unsafe_allow_html=True,
         )
-        st.title("HSBC Banking Query Intent Router")
-    st.write(
-        "Prototype for HSBC Online Banking Customer Support. Classify an English "
-        "enquiry into one of BANKING77's 77 service intents."
-    )
-    st.caption(
-        "The intent model uses public BANKING77 benchmark data, not HSBC customer "
-        "support records."
-    )
-    st.caption("Independent student prototype; not affiliated with or endorsed by HSBC.")
+    st.title("HSBC Banking Query Intent Router")
 
     if not LOCAL_MODEL_CONFIGURED:
         st.info(
@@ -181,74 +243,19 @@ def main() -> None:
         ),
     }
     st.caption(mode_explanations[selected_mode])
-    voice_mode = selected_mode == "Speak my message"
+    render_query_interface(selected_mode)
 
-    if voice_mode:
-        st.write(
-            "Record your English enquiry. Whisper Tiny will transcribe it, then "
-            "the fine-tuned classifier will predict its intent."
-        )
-        st.caption(
-            "Tip: Click Record, speak your enquiry, click Stop, then click "
-            "Classify message."
-        )
-        recorded_audio = st.audio_input(
-            "Record a banking enquiry",
-            sample_rate=16000,
-        )
-    else:
-        query = st.text_area(
-            "Customer message",
-            placeholder="For example: I don't recognize a card payment on my account.",
-            max_chars=2000,
-        )
-    if not st.button("Classify message", type="primary"):
-        return
-    if selected_mode != "Find similar examples" and not LOCAL_MODEL_CONFIGURED:
-        st.error(
-            "This mode requires the fine-tuned classifier. Configure "
-            "`BANKING77_MODEL_ID` or run `python train.py` first."
-        )
-        return
-
-    if voice_mode:
-        if recorded_audio is None:
-            st.warning("Record an enquiry before classifying.")
-            return
-        try:
-            audio, sample_rate = sf.read(
-                BytesIO(recorded_audio.getvalue()),
-                dtype="float32",
-            )
-        except (OSError, RuntimeError, ValueError) as exc:
-            st.error(f"Could not read the recorded audio: {exc}")
-            return
-        if audio.ndim > 1:
-            audio = audio.mean(axis=1)
-        with st.spinner("Transcribing your recording..."):
-            result = get_transcriber()(
-                {"array": audio, "sampling_rate": sample_rate},
-                generate_kwargs={"language": "english", "task": "transcribe"},
-            )
-        message = str(result["text"]).strip()
-        if not message:
-            st.warning("No speech was transcribed. Please try recording again.")
-            return
-        st.text_area("Speech-to-text transcript", value=message, disabled=True)
-    else:
-        message = query.strip()
-        if not message:
-            st.warning("Enter a customer message before classifying.")
-            return
-
-    if selected_mode in ("Classify my message", "Speak my message"):
-        classifier = get_classifier(MODEL_REF)
-        predictions = classifier.predict_many([message], top_k=3)[0]
-        display_predictions(predictions, "Model probability")
-    else:
-        retriever, _ = get_retriever()
-        predictions = retriever.predict_many([message], top_k=3)[0]
-        display_predictions(predictions, "Mean neighbor cosine similarity")
+    st.divider()
+    st.subheader("About this prototype")
+    st.caption(
+        "Purpose: demonstrate how English online-banking enquiries can be "
+        "routed to one of BANKING77's 77 service intents."
+    )
+    st.caption(
+        "The intent models use public BANKING77 benchmark data, not HSBC "
+        "customer support records. This independent student prototype is not "
+        "affiliated with or endorsed by HSBC."
+    )
 
 
 if __name__ == "__main__":
