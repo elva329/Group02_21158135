@@ -224,6 +224,10 @@ def main() -> None:
         index=0 if LOCAL_MODEL_CONFIGURED else 1,
     )
     mode_explanations = {
+        "Classify my message": (
+            "Fine-tuned classifier: DistilBERT predicts one of BANKING77's 77 "
+            "intent categories."
+        ),
         "Find similar examples": (
             "Pretrained retrieval: finds the closest BANKING77 examples and "
             "uses their intent."
